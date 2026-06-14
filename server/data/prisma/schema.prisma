@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  decisions Decision[]
+}
+
+model Decision {
+  id          Int        @id @default(autoincrement())
+  user_id     Int
+  title       String
+  description String
+  createdAt   DateTime   @default(now())
+  user        User       @relation(fields: [user_id], references: [id])
+  options     Option[]
+  criterias   Criteria[]
+}
+
+model Option {
+  id          Int      @id @default(autoincrement())
+  decision_id Int
+  title       String
+  decision    Decision @relation(fields: [decision_id], references: [id])
+  scores      Score[]
+}
+
+model Criteria {
+  id          Int      @id @default(autoincrement())
+  decision_id Int
+  title       String
+  priority    Int
+  decision    Decision @relation(fields: [decision_id], references: [id])
+  scores      Score[]
+
+  @@unique([priority])
+}
+
+model Score {
+  id          Int      @id @default(autoincrement())
+  option_id   Int
+  criteria_id Int
+  value       Float
+  option      Option   @relation(fields: [option_id], references: [id])
+  criteria    Criteria @relation(fields: [criteria_id], references: [id])
+
+  @@unique([option_id,criteria_id]) // do migration for removing duplicate
+}
