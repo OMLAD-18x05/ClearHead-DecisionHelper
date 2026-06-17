@@ -28,7 +28,7 @@ prisma.$connect()
         app.listen(process.env.PORT, () => console.log('server started'))
     })
     .catch((err)=>{
-        console.log('Db connection Failed')
+        console.log('Db connection Failed',err)
         process.exit(1)
     })
 

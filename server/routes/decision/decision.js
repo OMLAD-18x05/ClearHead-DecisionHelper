@@ -13,7 +13,7 @@ router.post('/decisions', authMiddleware, async (req, res, next) => {
                 title, description, user_id
             }
         })
-        res.status(201).json({ msg: 'Decision created' })
+        res.status(201).json({ msg: 'Decision created', decision })
     } catch (err) {
         next(err);
     }
@@ -71,13 +71,28 @@ router.patch('/decisions/:id', authMiddleware, validateUserDecision, async (req,
         next(err)
     }
 })
+
 // Deleting the decision
 router.delete('/decisions/:id', authMiddleware, validateUserDecision, async (req, res, next) => {
     try {
         const decisionId = parseInt(req.params.id);
-        await prisma.Decision.delete({
-            where: { id: decisionId }
-        })
+
+        await prisma.$transaction(async (tx) => {
+            // Delete scores linked to options of this decision
+            await tx.Score.deleteMany({
+                where: { option: { decision_id: decisionId } }
+            });
+            // Delete scores linked to criteria of this decision
+            await tx.Score.deleteMany({
+                where: { criteria: { decision_id: decisionId } }
+            });
+            // Delete options and criteria
+            await tx.Option.deleteMany({ where: { decision_id: decisionId } });
+            await tx.Criteria.deleteMany({ where: { decision_id: decisionId } });
+            // Finally delete the decision
+            await tx.Decision.delete({ where: { id: decisionId } });
+        });
+
         return res.status(200).json({ msg: 'Deleted successfully' })
     } catch (err) {
         next(err)

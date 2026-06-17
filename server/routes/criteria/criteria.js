@@ -9,12 +9,13 @@ router.post('/:id/criteria', authMiddleware, validateUserDecision, async (req, r
     try {
         const { title, priority } = req.body;
         const decision_id = parseInt(req.decision.id);// from validate user middleware
-        if (!title || !priority) {
+        const parsedPriority = parseInt(priority);
+        if (!title || !Number.isFinite(parsedPriority)) {
             return res.status(401).json({ msg: 'Please provide field' })
         }
         const criteriaEntry = await prisma.Criteria.create({
             data: {
-                decision_id, title, priority
+                decision_id, title, priority: parsedPriority
             }
         })
         res.status(201).json({ msg: 'Criteria Created', criteriaId: criteriaEntry.id })
@@ -40,13 +41,23 @@ router.get('/:id/criteria', authMiddleware, validateUserDecision, async (req, re
 router.put('/:id/criteria/:criteriaId', authMiddleware, validateUserDecision, async (req, res, next) => {
     try {
         const criteriaId = parseInt(req.params.criteriaId);
-        const decisionId = parseInt(req.params.id);
-
         const { priority } = req.body;
+        const parsedPriority = parseInt(priority);
+
+        const criteria = await prisma.Criteria.findFirst({
+            where: {
+                id: criteriaId,
+                decision_id: req.decision.id
+            }
+        });
+
+        if (!criteria) {
+            return res.status(404).json({ msg: 'Criteria not found' });
+        }
 
         await prisma.Criteria.update({
-            where: { id: criteriaId, decision_id: decisionId },
-            data: { priority }
+            where: { id: criteriaId },
+            data: { priority: parsedPriority }
         })
         res.status(200).json({ msg: 'priority updated' })
     } catch (err) {
@@ -58,12 +69,22 @@ router.put('/:id/criteria/:criteriaId', authMiddleware, validateUserDecision, as
 router.delete('/:id/criteria/:criteriaId', authMiddleware, validateUserDecision, async (req, res, next) => {
     try {
         const criteriaId = parseInt(req.params.criteriaId);
-        const decisionId = parseInt(req.params.id);
+
+        const criteria = await prisma.Criteria.findFirst({
+            where: {
+                id: criteriaId,
+                decision_id: req.decision.id
+            }
+        });
+
+        if (!criteria) {
+            return res.status(404).json({ msg: 'Criteria not found' });
+        }
 
         await prisma.Criteria.delete({
-            where: { id: criteriaId, decision_id: decisionId }
+            where: { id: criteriaId }
         })
-        res.status(204)
+        res.status(204).end()
     } catch (err) {
         next(err);
     }

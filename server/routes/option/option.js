@@ -43,6 +43,17 @@ router.patch('/:id/options/:optionId', authMiddleware, validateUserDecision, asy
         const optionId = parseInt(req.params.optionId);
         const { title } = req.body;
 
+        const existingOption = await prisma.Option.findFirst({
+            where: {
+                id: optionId,
+                decision_id: req.decision.id
+            }
+        });
+
+        if (!existingOption) {
+            return res.status(404).json({ msg: 'Option not found' });
+        }
+
         const updatedOption = await prisma.Option.update({
             where: { id: optionId },
             data: {
@@ -59,6 +70,18 @@ router.patch('/:id/options/:optionId', authMiddleware, validateUserDecision, asy
 router.delete('/:id/options/:optionId', authMiddleware, validateUserDecision, async (req, res, next)=>{
     try{
         const optionId = parseInt(req.params.optionId);
+
+        const existingOption = await prisma.Option.findFirst({
+            where: {
+                id: optionId,
+                decision_id: req.decision.id
+            }
+        });
+
+        if (!existingOption) {
+            return res.status(404).json({ msg: 'Option not found' });
+        }
+
         await prisma.Option.delete({
             where:{id:optionId}
         });
