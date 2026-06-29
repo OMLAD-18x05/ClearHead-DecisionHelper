@@ -3,6 +3,17 @@
 ClearHead is a modern, responsive web application designed to help users make logical, data-driven decisions. By separating emotional gut feelings from objective priorities, ClearHead allows users to define custom decision matrices, assign weights to specific criteria, score choices, and visualize optimal outcomes based on weighted totals.
 
 ---
+## Screenshots
+
+| Landing Page | Dashboard |
+|---|---|
+| ![Landing](./Screenshots/Landing.png) | ![Dashboard](./Screenshots/dashboard.png) |
+
+| Decision Workspace | Score Matrix & Results |
+|---|---|
+| ![Workspace](./screenshots/workspace.png) | ![Results](./screenshots/result.png) |
+
+
 
 ## Table of Contents
 
