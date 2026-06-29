@@ -11,7 +11,7 @@ ClearHead is a modern, responsive web application designed to help users make lo
 
 | Decision Workspace | Score Matrix & Results |
 |---|---|
-| ![Workspace](./screenshots/workspace.png) | ![Results](./screenshots/result.png) |
+| ![Workspace](./Screenshots/workspace.png) | ![Results](./Screenshots/result.png) |
 
 
 
